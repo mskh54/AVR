@@ -30,7 +30,7 @@ void lcd_goto(char y, char x);
 int main(void)
 {
 	DDRD = 0XFF;// lcd on port D
-    DDRA = 0xFF; //RS =0 ; RW = 1 ; EN = 2
+    DDRA = 0xFF; //RS = 0 ; RW = 1 ; EN = 2
     
     PORTD = 0X00;
     PORTA &= ~(1 << RS);
@@ -41,11 +41,7 @@ int main(void)
     while (1) 
     {
 		lcd_clear();
-		lcd_puts("MOHAMMAD SADEGH");
-		lcd_goto(2,0);
-		lcd_puts("khodadadi");
-		lcd_goto(2,10);
-		lcd_puts("**");
+		lcd_puts("MOHAMMAD SADEGH KHODADADI");
 		_delay_ms(1000);
     }
 }
@@ -65,7 +61,6 @@ void lcd_clear(){
     _delay_ms(1);
     PORTA &= ~(1 << EN);
 	lcd_home();
-	
 }
 
 void lcd_init(char y,char x){
@@ -74,11 +69,13 @@ void lcd_init(char y,char x){
 	lcd_on();
 	lcd_clear();
 	//Function set: 8-bit/2-line
-	PORTA &= ~(1 << RS);
-	PORTA |= 1 << EN;
-	PORTD = 0x38;
-	_delay_ms(1);
-	PORTA &= ~(1 << EN);	
+	if (x ==16 & y == 2){
+		PORTA &= ~(1 << RS);
+		PORTA |= 1 << EN;
+		PORTD = 0x38;
+		_delay_ms(1);
+		PORTA &= ~(1 << EN);
+	}
 }
 
 void lcd_home(){
@@ -99,15 +96,13 @@ void lcd_char(char character){
 
 void lcd_puts( char * string){
 	unsigned char i =0;
-	for (i = 0 ; i<32 ; i++){
+	for (i = 0 ; i< (x_lcd * y_lcd) ; i++){
 		if (string[i] == '\0')
 			break;
-		else if (i == x_lcd){
-			// goto new line in lcd
-		}
+		else if (i == x_lcd)
+			lcd_goto(2,0);
 		lcd_char(string[i]);
 	}
-	
 }
 
 void lcd_right(){
@@ -128,14 +123,11 @@ void lcd_left(){
 
 void lcd_goto(char y, char x){
 	unsigned char i;
-	switch(y)
-	{
+	switch(y){
 		case 1:
 			lcd_home();
 			for ( i=0; i<x; i++)
-			{
-				lcd_right();
-			}		
+				lcd_right();		
 			break;
 		case 2:
 			PORTA &= ~(1 << RS);
@@ -145,9 +137,7 @@ void lcd_goto(char y, char x){
 			PORTA &= ~(1 << EN);
 			
 			for ( i=0; i<x; i++)
-			{
 				lcd_right();
-			}
 			break;
 	}
 	
